@@ -2,8 +2,22 @@ name: TsjExamplePlugin
 main: org.tsj.minecraft.tsjexampleplugin.TsjExamplePlugin
 version: 1.0
 commands:
+
    example:
-      description: This is an example command.
-      usage: /example [player]
+   
+      #this description is used by the global help system
+      description: This is an example command. It does nothing.
+      
+      #this is used by help and displayed if you return "false" from your handler
+      usage: /example
+   
+      #if you wanted to use permissions, you could here
       #permission: tsjexampleplugin.basic
       #permission-message: You don't have example.basic
+      
+   example2:
+      description: This is an example2 command. It can only be used by a player.
+      usage: /example2      
+   example3:
+      description: This is an example3 command. It tells you what type of entity hurt a player last.
+      usage: /example3
