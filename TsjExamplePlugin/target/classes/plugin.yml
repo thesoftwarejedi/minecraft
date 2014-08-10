@@ -1,0 +1,9 @@
+name: TsjExamplePlugin
+main: org.tsj.minecraft.tsjexampleplugin.TsjExamplePlugin
+version: 1.0
+commands:
+   example:
+      description: This is an example command.
+      usage: /example [player]
+      #permission: tsjexampleplugin.basic
+      #permission-message: You don't have example.basic
