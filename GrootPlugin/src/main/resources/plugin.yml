@@ -1,0 +1,7 @@
+name: GrootPlugin
+main: org.tsj.minecraft.groot.GrootPlugin
+version: 1.0
+commands:
+   groot:
+      description: Starts a game of alternating wool color placement.
+      usage: /go <opponent name> <# seconds per turn> <blocks away the win post is placed>
