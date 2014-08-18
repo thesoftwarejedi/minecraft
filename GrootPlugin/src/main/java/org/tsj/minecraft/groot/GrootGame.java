@@ -1,6 +1,9 @@
 package org.tsj.minecraft.groot;
 
+import java.util.LinkedList;
+
 import org.bukkit.ChatColor;
+import org.bukkit.util.*;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,6 +26,8 @@ public class GrootGame implements Listener {
 	World _w;
 	Player _p1;
 	Player _p2;
+	Location _p1ResetLoc;
+	Location _p2ResetLoc;
 	boolean isP1Turn = false;
 	Wool purpleWool = new Wool(DyeColor.PURPLE);
 	byte purpleData = DyeColor.PURPLE.getData();
@@ -34,8 +39,20 @@ public class GrootGame implements Listener {
 	Block _winP1;
 	Block _winP2;
 	int _winDistance;
+	LinkedList<Block> _arenaBlocks = new LinkedList<Block>();
+	int _arenaBumper;
 	
-	public GrootGame(Server s, GrootPlugin plugin, Player p1, Player p2, int turnSeconds, int winDistance) {
+	public GrootGame(Server s, GrootPlugin plugin, Player p1, Player p2, int turnSeconds, int winDistance, int arenaBumper) throws Exception {
+		if (turnSeconds < 3 || turnSeconds > 30) {
+			throw new Exception("turn seconds must be between 3 and 30");
+		}
+		if (winDistance < 3 || winDistance > 10) {
+			throw new Exception("win distance must be between 3 and 10");
+		}
+		if (arenaBumper < 2 || arenaBumper > 6) {
+			throw new Exception("arena bumper must be between 3 and 10");
+		}
+		
 		_server = s;
 		_plugin = plugin;
 		_p1 = p1;
@@ -43,20 +60,20 @@ public class GrootGame implements Listener {
 		_w = _p1.getWorld();
 		_turnSeconds = turnSeconds;
 		_winDistance = winDistance;
+		_arenaBumper = arenaBumper;
 	}
 
 	public void Start() {
 		//set the start point
-		_w.getBlockAt(_p1.getLocation().add(0, -1, 0)).setType(Material.BEDROCK);
+		Location startLoc = _p1.getLocation().clone().add(0, 50, 0);
 		
-		//set win points
-		_winP1 = _w.getBlockAt(_p1.getLocation().add(_winDistance, 0, 0));
-		_winP1.setType(Material.WOOL);
-		_winP1.setData(purpleData);
+		createArena(startLoc);		
 		
-		_winP2 = _w.getBlockAt(_p1.getLocation().add(_winDistance*-1, 0, 0));
-		_winP2.setType(Material.WOOL);
-		_winP2.setData(greenData);
+		//place players
+		_p1ResetLoc = _p1.getLocation().clone();
+		_p1.teleport(startLoc.clone().add(_winDistance-1, 0, 0));
+		_p2ResetLoc = _p2.getLocation().clone();
+		_p2.teleport(startLoc.clone().add((_winDistance-1)*-1, 0, 0));
 		
 		//p1 gets purple
 		ItemStack is = purpleWool.toItemStack(64);
@@ -74,14 +91,103 @@ public class GrootGame implements Listener {
 		_server.getPluginManager().registerEvents(this, _plugin);
 	}
 	
+	private void createArena(Location startLoc) {
+		Block brushBlock = null;
+		
+		//starting point
+		brushBlock = _w.getBlockAt(startLoc.clone());
+		brushBlock.setType(Material.OBSIDIAN);	
+		_arenaBlocks.add(brushBlock);
+		
+		//winning points
+		_winP1 = _w.getBlockAt(startLoc.clone().add(_winDistance, 0, 0));
+		_winP1.setType(Material.WOOL);
+		_winP1.setData(purpleData);
+		_arenaBlocks.add(_winP1);
+		
+		_winP2 = _w.getBlockAt(startLoc.clone().add(_winDistance*-1, 0, 0));
+		_winP2.setType(Material.WOOL);
+		_winP2.setData(greenData);
+		_arenaBlocks.add(_winP2);
+		
+		//build the arena around it all
+		Material arenaMaterial = Material.STONE;
+		Block refBlock = null;	
+		
+		//back wall
+		refBlock = startLoc.clone().add(_winDistance+_arenaBumper, -_arenaBumper, -_arenaBumper).getBlock();
+		createBackplate(arenaMaterial, refBlock);		
+		refBlock = startLoc.clone().add(-1*(_winDistance+_arenaBumper), -_arenaBumper, -_arenaBumper).getBlock();
+		createBackplate(arenaMaterial, refBlock);
+		
+		//tube walls
+		refBlock = startLoc.clone().add(-1*(_winDistance+_arenaBumper), -_arenaBumper, -_arenaBumper).getBlock();
+		createSideWalls(arenaMaterial, refBlock);
+		refBlock = startLoc.clone().add(-1*(_winDistance+_arenaBumper), -_arenaBumper, _arenaBumper).getBlock();
+		createSideWalls(arenaMaterial, refBlock);
+		
+		//top and bottom
+		refBlock = startLoc.clone().add(-1*(_winDistance+_arenaBumper), -_arenaBumper, -_arenaBumper).getBlock();
+		createRoofAndFloor(arenaMaterial, refBlock);
+		refBlock = startLoc.clone().add(-1*(_winDistance+_arenaBumper), _arenaBumper, -_arenaBumper).getBlock();
+		createRoofAndFloor(arenaMaterial, refBlock);
+	}
+
+	private void createRoofAndFloor(Material arenaMaterial, Block refBlock) {
+		Block brushBlock;
+		for (int i = 0; i < (_winDistance+_arenaBumper)*2; i++) {
+			for (int j = 0; j < _arenaBumper*2; j++) {
+				brushBlock = refBlock.getRelative(i, 0, j);
+				brushBlock.setType(arenaMaterial);
+				_arenaBlocks.add(brushBlock);
+			}
+		}
+	}
+
+	private void createSideWalls(Material arenaMaterial, Block refBlock) {
+		Block brushBlock;
+		for (int i = 0; i < (_winDistance+_arenaBumper)*2; i++) {
+			for (int j = 0; j < _arenaBumper*2; j++) {
+				brushBlock = refBlock.getRelative(i, j, 0);
+				brushBlock.setType(arenaMaterial);
+				_arenaBlocks.add(brushBlock);
+			}
+		}
+	}
+
+	private void createBackplate(Material arenaMaterial, Block refBlock) {
+		Block brushBlock;
+		for (int i = 0; i < _arenaBumper*2; i++) {
+			for (int j = 0; j < _arenaBumper*2; j++) {
+				brushBlock = refBlock.getRelative(0, i, j);
+				brushBlock.setType(arenaMaterial);
+				_arenaBlocks.add(brushBlock);
+			}
+		}
+	}
+	
 	public void Stop() {
 		_gameOver = true;
+		
+		//clear out the arena
+		for (Block block : _arenaBlocks) {
+			block.setType(Material.AIR);
+		}
+		
+		//put the players back
+		_p1.teleport(_p1ResetLoc.clone());
+		if (!_p1.equals(_p2)) {
+			_p2.teleport(_p2ResetLoc.clone());
+		}
+		
 		//todo unregister events!
 	}
 	
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent evt) {
     	if (_gameOver) return;
+    	Player p = evt.getPlayer();
+    	if (p != _p1 && p != _p2) return;
     	//prevent breaking blocks during the game
     	evt.setCancelled(true);
     }
@@ -111,15 +217,16 @@ public class GrootGame implements Listener {
     	
     	byte canPlaceAgainstColor = isP1Turn ? greenData : purpleData;
     	Block blockAgainst = evt.getBlockAgainst();    	
-    	if ((blockAgainst.getType() != Material.BEDROCK) && 
+    	if ((blockAgainst.getType() != Material.OBSIDIAN) && 
     			(blockAgainst.getType() != Material.WOOL ||
 	    		 blockAgainst.getData() != canPlaceAgainstColor)) {
-    		p.sendMessage("You can only place your wool on bedrock or your opponents wool until the game is over");
+    		p.sendMessage("You can only place your wool on obsidian or your opponents wool until the game is over");
     		evt.setCancelled(true);
     		return;
     	}
     	
     	//the block was allowed
+    	_arenaBlocks.add(blockPlaced);
     	
     	//check for a win...
     	{
@@ -144,7 +251,7 @@ public class GrootGame implements Listener {
     	//the game goes on!
 		evt.setCancelled(false); //insure that the block is placed (as much we can with high priority here)
     	p.sendMessage("Block placed, your opponent has " + _turnSeconds + " seconds to go");
-    	String oppMessage = "You must place your wool on bedrock or your opponents wool within " + _turnSeconds + " seconds";
+    	String oppMessage = "You must place your wool on obsidian or your opponents wool within " + _turnSeconds + " seconds";
     	if (isP1Turn) {
     		_p2.sendMessage(oppMessage);
     	} else {

@@ -18,10 +18,16 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
- * This simple example minecraft plugin was created as an entry point for my kids
- * to begin developing plugins.
+ * Oh this goofy useless minigame that has wasted my time.
+ * It's not even fun, really.
  * 
- * This was mainly taken from http://wiki.bukkit.org/Plugin_Tutorial
+ * However, it serves as a great example for building an arena
+ * in future plugins
+ * 
+ * on creation it generates an arena 50 blocks above, plays a game, 
+ * and then breaks down the arena and returns the players to their 
+ * start point.  This gives the illusion of warping to a new land.
+ * 
  * @author @thesoftwarejedi
  */
 public final class GrootPlugin extends JavaPlugin implements Listener {
@@ -50,11 +56,16 @@ public final class GrootPlugin extends JavaPlugin implements Listener {
 		           sender.sendMessage(args[0] + " is not online!");
 		           return true;
 		        }
-				_g = new GrootGame(getServer(), this, (Player)sender, target, Integer.parseInt(args[1]), 
-																				Integer.parseInt(args[2]));
-				_g.Start();
-				getServer().broadcastMessage("A battle has begun between " + sender.getName() + 
-												" and " + target.getName());
+		        try {
+					_g = new GrootGame(getServer(), this, (Player)sender, target, Integer.parseInt(args[1]), 
+							Integer.parseInt(args[2]), 
+							Integer.parseInt(args[3]));
+					_g.Start();
+					getServer().broadcastMessage("A battle has begun between " + sender.getName() + 
+													" and " + target.getName());
+		        } catch (Exception ex) {
+		        	sender.sendMessage("Error: " + ex.getMessage());
+		        }
 		        return true;
 	    	}
     	} catch (Exception ex) {
