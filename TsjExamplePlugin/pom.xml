@@ -22,8 +22,10 @@
 				<artifactId>maven-antrun-plugin</artifactId>
 				<configuration>
 					<tasks>
-						<copy file="target\GrootPlugin-1.0.jar"
-							tofile="C:\Users\Dana\Software\minecraft-server\plugins\GrootPlugin-1.0.jar" />
+					<!--
+						<copy file="target/TsjExamplePlugin-0.0.1-SNAPSHOT.jar"
+							tofile="C:\Users\Dana\Software\minecraft-server\plugins\TsjExamplePlugin.jar" />
+					-->
 					</tasks>
 				</configuration>
 				<executions>
@@ -49,7 +51,7 @@
            <artifactId>bukkit</artifactId>
            
            <!-- the find the version desired here http://repo.bukkit.org/content/groups/public/org/bukkit/bukkit/ -->
-           <version>1.7.9-R0.3-SNAPSHOT</version>
+           <version>1.7.9-R0.2</version>
            
            <type>jar</type>
            <scope>provided</scope>
