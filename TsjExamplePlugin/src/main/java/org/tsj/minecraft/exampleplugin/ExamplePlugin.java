@@ -90,7 +90,7 @@ public final class ExamplePlugin extends JavaPlugin implements Listener {
     }
     
     //another entry point is for listeners of events.  A full list of events can
-    //be found in the javadoc: http://jd.bukkit.org/dev/apidocs/   Check all packages under
+    //be found in the wiki: http://wiki.bukkit.org/Event_API_Reference   Check all packages under
     //the "org.bukkit.event" package.  Here are some simple examples:
     
     //straight from the tutorial, this will make stone constantly appear above the player!
