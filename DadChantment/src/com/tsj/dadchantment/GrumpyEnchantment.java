@@ -1,52 +1,77 @@
 package com.tsj.dadchantment;
 
-import java.util.Map;
-import java.util.Set;
+import java.util.HashSet;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.rit.sucy.CustomEnchantment;
+import com.rit.sucy.EnchantmentAPI;
+import com.rit.sucy.service.ENameParser;
 
 public class GrumpyEnchantment extends CustomEnchantment implements Listener {
+	
+	//this is a set of players names who are currently holding an instant smite enchantment
+	public static HashSet<String> _s_playersEquiped = new HashSet<String>();
     
 	public GrumpyEnchantment() {
 		super("Grumpy", new Material[] { }, 10);
 	}
 	
+	//whenever the item ANY player is holding changes this is called
+	@EventHandler
+	public void onPlayerItemHeld(PlayerItemHeldEvent evt) {
+		//the player changed inventory slots, get what they have now
+		ItemStack item = evt.getPlayer().getInventory().getItemInHand();
+		//remove them from the list of players holding instant smite (if they are there)
+		_s_playersEquiped.remove(evt.getPlayer().getName());
+		//if they're holding nothing, we can return
+		if (item == null) return;
+		ItemMeta meta = item.getItemMeta();
+		//if the item doesn't have meta, we can return
+        if (meta == null) return;
+        //if the item's meta doesn't have lore (enchantment) we return
+        if (!meta.hasLore()) return;
+        //for each enchantment
+        for (String lore : meta.getLore()) {
+            String name = ENameParser.parseName(lore);
+            int level = ENameParser.parseLevel(lore);
+            if (name == null) continue;
+            if (level == 0) continue;
+            //if the enchantment is this enchantment, we add the player to our list of people holding the enchantment
+            if (EnchantmentAPI.isRegistered(name) && EnchantmentAPI.getEnchantment(name) == this) {
+                _s_playersEquiped.add(evt.getPlayer().getName());
+            }
+        }
+	}
+	
+	//every time a block is broken, this is called
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent evt) {
-		Block block = evt.getBlock();
-		Material mat = block.getType();
-		//check to see if player hit ore - thats all we care about, so check quick and move on otherwise
-		if (mat.equals(Material.IRON_ORE) || mat.equals(Material.GOLD_ORE)) {
-			//get the enchantment of the item used to hit the block
-			Map<Enchantment, Integer> enMap = evt.getPlayer().getItemInHand().getEnchantments();
-			//these next three lines check to see if there's even an enchantment on the item
-			if (enMap != null) {
-				Set<Enchantment> keys = enMap.keySet();
-				if (keys != null && !keys.isEmpty()) {
-					//ok, there's an enchantment on the tool, loop through enchantments and see if its this one
-					for (Enchantment e : keys) {
-						if (e.getName().equals(this.enchantName)) {
-							//BINGO
-							InstantSmite(evt.getBlock(), evt.getPlayer());
-							//prevent the block from doing what it normally would
-							evt.setCancelled(true); 
-							break; //no sense checking other enchantments
-						}
-					}
-				}
+		//get the player and check our list.  We want this method optimized for speed since it's being called
+		//on the server every time anyone breaks a block.  Nothing is faster than checking a hashset for a string
+		Player player = evt.getPlayer();
+		if (_s_playersEquiped.contains(player.getName())) {
+			Block block = evt.getBlock();
+			Material mat = block.getType();
+			//check to see if player hit ore - thats all we care about, so check quick and move on otherwise
+			if (mat.equals(Material.IRON_ORE) || mat.equals(Material.GOLD_ORE)) {
+				//BINGO - this is defined below
+				InstantSmite(block, evt.getPlayer());
+				//prevent the block from doing what it normally would
+				evt.setCancelled(true); 
 			}
 		}
 	}
 
+	//this method does the smolting magic
 	private void InstantSmite(Block block, Player player) {
 		Material mat = block.getType();
 		//give the player ingot instantly, gold or iron
