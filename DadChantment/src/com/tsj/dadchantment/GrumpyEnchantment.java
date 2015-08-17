@@ -16,6 +16,9 @@ import com.rit.sucy.CustomEnchantment;
 import com.rit.sucy.EnchantmentAPI;
 import com.rit.sucy.service.ENameParser;
 
+//this example enchantment will automatically smite any gold or iron that is mined
+//it's named grumpy because previously it just yelled "get off my lawn" to any player
+//hit with it
 public class GrumpyEnchantment extends CustomEnchantment implements Listener {
 	
 	//this is a set of players names who are currently holding an instant smite enchantment
