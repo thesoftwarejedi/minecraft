@@ -1,0 +1,10 @@
+name: JediGamesPlugin
+main: org.tsj.minecraft.jedigames.JediGamesPlugin
+version: 0.1
+commands:
+
+   jg-snowball:
+      description: Enable or disable the snowball game
+      usage: /jg-snowball <on|off>
+      permission: jedigames.admin.snowball
+      permission-message: Permission denied

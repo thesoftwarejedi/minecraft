@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <!-- change these 2 values to be appropriate for your plugin -->
+  <!-- this is your group name, or "package" name, should be the same for all of your plugins -->
+  <groupId>org.tsj.minecraft</groupId>
+  <!-- This is the name of this particular plugin that you are writing -->
+  <artifactId>JediGames</artifactId>
+  
+  <version>0.1</version>
+     <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <source>1.7</source>
+                  <target>1.7</target>
+              </configuration>
+          </plugin>
+          			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<configuration>
+					<tasks>
+						<copy file="target/JediGames-0.1.jar"
+							tofile="D:\SyncedData\plugins\update\JediGames.jar" />
+					</tasks>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>install</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+      </plugins>
+   </build>
+   <repositories>
+       <repository>
+           <id>bukkit-repo</id>
+           <url>http://repo.bukkit.org/content/groups/public/</url>
+       </repository>
+   </repositories>
+   <dependencies>
+       <dependency>
+           <groupId>org.bukkit</groupId>
+           <artifactId>bukkit</artifactId>
+           
+           <!-- the find the version desired here http://repo.bukkit.org/content/groups/public/org/bukkit/bukkit/ -->
+           <version>1.7.9-R0.2</version>
+           
+           <type>jar</type>
+           <scope>provided</scope>
+       </dependency>
+       <dependency>
+		    <groupId>com.google.code.jgntp</groupId>
+		    <artifactId>jgntp</artifactId>
+		    <version>1.2.1</version>
+		</dependency>
+   </dependencies>
+</project>

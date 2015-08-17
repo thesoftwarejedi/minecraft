@@ -1,0 +1,4 @@
+name: DadChantments
+main: com.tsj.dadchantment.DadChantmentPlugin
+version: 0.1
+depend: [EnchantmentAPI]
