@@ -28,7 +28,7 @@ public class GrumpyEnchantment extends CustomEnchantment implements Listener {
 		super("Grumpy", new Material[] { }, 10);
 	}
 	
-	//whenever the item ANY player is holding changes this is called
+	//whenever the item ANY player is holding changes, this is called
 	@EventHandler
 	public void onPlayerItemHeld(PlayerItemHeldEvent evt) {
 		//the player changed inventory slots, get what they have now
@@ -39,20 +39,20 @@ public class GrumpyEnchantment extends CustomEnchantment implements Listener {
 		if (item == null) return;
 		ItemMeta meta = item.getItemMeta();
 		//if the item doesn't have meta, we can return
-        if (meta == null) return;
-        //if the item's meta doesn't have lore (enchantment) we return
-        if (!meta.hasLore()) return;
-        //for each enchantment
-        for (String lore : meta.getLore()) {
-            String name = ENameParser.parseName(lore);
-            int level = ENameParser.parseLevel(lore);
-            if (name == null) continue;
-            if (level == 0) continue;
-            //if the enchantment is this enchantment, we add the player to our list of people holding the enchantment
-            if (EnchantmentAPI.isRegistered(name) && EnchantmentAPI.getEnchantment(name) == this) {
-                _s_playersEquiped.add(evt.getPlayer().getName());
-            }
-        }
+        	if (meta == null) return;
+	        //if the item's meta doesn't have lore (enchantment) we return
+	        if (!meta.hasLore()) return;
+	        //for each enchantment
+	        for (String lore : meta.getLore()) {
+	            String name = ENameParser.parseName(lore);
+	            int level = ENameParser.parseLevel(lore);
+	            if (name == null) continue;
+	            if (level == 0) continue;
+	            //if the enchantment is this enchantment, we add the player to our list of people holding the enchantment
+	            if (EnchantmentAPI.isRegistered(name) && EnchantmentAPI.getEnchantment(name) == this) {
+	                _s_playersEquiped.add(evt.getPlayer().getName());
+	            }
+	        }
 	}
 	
 	//every time a block is broken, this is called
