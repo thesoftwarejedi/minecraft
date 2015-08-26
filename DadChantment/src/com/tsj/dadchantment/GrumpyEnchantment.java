@@ -16,7 +16,7 @@ import com.rit.sucy.CustomEnchantment;
 import com.rit.sucy.EnchantmentAPI;
 import com.rit.sucy.service.ENameParser;
 
-//this example enchantment will automatically smite any gold or iron that is mined
+//this example enchantment will automatically smelt any gold or iron that is mined
 //it's named grumpy because previously it just yelled "get off my lawn" to any player
 //hit with it
 public class GrumpyEnchantment extends CustomEnchantment implements Listener {
@@ -74,7 +74,7 @@ public class GrumpyEnchantment extends CustomEnchantment implements Listener {
 		}
 	}
 
-	//this method does the smolting magic
+	//this method does the smelting magic
 	private void InstantSmite(Block block, Player player) {
 		Material mat = block.getType();
 		//give the player ingot instantly, gold or iron
